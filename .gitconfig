@@ -21,24 +21,39 @@
    al = config --get-regexp alias
    br = branch
    brd = branch -d
-   c  = commit
-   co = checkout
    cob = checkout -b
    cos = "!f() { git checkout $(git branch | grep $1); }; f"
    cp = cherry-pick
    df = diff
    dh = diff HEAD
-   dc = diff --staged
-   lf = log --pretty=fuller
-	lg = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --date=relative
-   lp = log -p
-   lod = log --oneline --decorate
+   # lg = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --date=relative
    lpo = log --pretty=oneline --abbrev-commit --graph --decorate
-   st = status
    pub = "!f() { git push -u ${1:-origin} `git symbolic-ref HEAD`; }; f"
    mt = mergetool
    rbc = rebase --continue
    rbs = rebase --skip
+   
+   brD = "!f() { git branch -D `git branch --list "${1:-origin}"`; }; f" # WIP
+   c  = commit
+   co = checkout
+   cm = commit -m
+   cmend = commit --amend --no-edit
+   edit = commit --amend -m
+   empty = commit --allow-empty -m
+   dst = diff --staged
+   d = diff --name-only
+   hist = log --pretty=format:\"%h %ad | %s%d [%an]\" --graph --date=short
+   lod = log --oneline --decorate
+   lp = log -p
+   lf = log --pretty=fuller
+   lg = log
+   pff = pull --ff-only
+   p = push -u #push branch and setup remote tracking
+   rei = "!sh -c 'git rebase -i HEAD~$1'"
+   standup = log --graph --pretty=format:'%Cred%h%Creset -%Cgreen %an -%C(yellow)%d%Creset %s %Cgreen(%cr)%Creset' --abbrev-commit --date=relative --since="yesterday"
+   s = status
+   search = "!f(){ git branch --list "*$1*"; }; f"
+   track = branch -u
 
 [mergetool]
    keepBackup = false
@@ -47,8 +62,8 @@
 [mergetool "fugitive"]
 	cmd = vim -f -c \"Gdiff\" \"$MERGED\"
 [user]
-	email = johnweathers@gmail.com
-	name = John Weathers
+	email = will@gmail.com
+	name = Will
 [difftool "sourcetree"]
 	cmd = opendiff \"$LOCAL\" \"$REMOTE\"
 	path = 
