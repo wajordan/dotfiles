@@ -88,11 +88,28 @@ prompt_wilbert_precmd() {
   vcs_info
   REF="$vcs_info_msg_0_"
   PROMPT="$(prompt_info)$(prompt_status)$LINEBREAK$(prompt_dir)$(prompt_git)"
-  # %(4w.%{%F{yellow}Thursday%f%}.) %j %# 
+  # %(4w.%{%F{yellow}Thursday%f%}.) %j %#
 
   # RPS1
   # RPROMPT
 }
+
+# Scripting
+# http://www.csse.uwa.edu.au/programming/linux/zsh-doc/zsh_11.html
+
+# Read in a common environment configuration if present
+# -f file: true if file exists and is a regular file.
+[[ -f "$HOME/.zshenv" ]] && . "$HOME/.zshenv"
+
+# Import aliases
+[[ -s "$HOME/.aliases" ]] && . "$HOME/.aliases"
+
+# rbenv: Ruby version manager
+eval "$(rbenv init -)"
+
+# Docker
+# -s file: true if file exists and has size greater than zero.
+[[ -s "~/.dockercfg" ]] && . "~/.dockercfg"
 
 # -- PRY REMOTE USAGE --
 # gem install pry-remote
@@ -100,3 +117,12 @@ prompt_wilbert_precmd() {
 # binding.remote_pry
 # pry-remote
 # exit-program to get out of a loop
+
+# -- screen for terminal --
+# crtl-a '   (select)
+# crtl-a 0   (select 0)
+# crtl-a S   (split horizontally)
+# crtl-a \   (quit) Kill all windows and terminate screen.
+# crtl-a ?   (help)
+# crtl-a C   (create)
+# crtl-a tab (switch split screens)
