@@ -1,155 +1,102 @@
-HISTFILE=~/.histfile
-HISTSIZE=10000
-SAVEHIST=$HISTSIZE
-setopt sharehistory
-setopt hist_ignore_all_dups
-setopt clobber
-
-# 10ms for key sequences
-KEYTIMEOUT=1
-
-export PATH=/usr/local/bin:/usr/local/sbin:$PATH
-# set PATH so it includes user's private bin if it exists
-if [ -d "$HOME/bin" ] ; then
-   export PATH="$HOME/bin:$PATH"
-fi
-
-export NODE_PATH=/usr/local/lib/node_modules
-export JAVA_HOME=$(/usr/libexec/java_home)
-
-bindkey -v
-bindkey -M viins 'jj' vi-cmd-mode
-bindkey '^R' history-incremental-search-backward
-#bindkey -M vi-command -x '",h":less ~/.vim/bash-vi-editing-mode-cheat-sheet.txt'
-#bindkey -M vi-insert -x '"\C-h":less ~/.vim/bash-vi-editing-mode-cheat-sheet.txt'
-
-autoload -Uz compinit
-compinit
-
-# -----------------------------------------------
-# Set up the prompt
-# -----------------------------------------------
+autoload -Uz add-zsh-hook
 autoload -Uz vcs_info
 
-zstyle ':vcs_info:*' stagedstr '%F{green}●'
-zstyle ':vcs_info:*' unstagedstr '%F{yellow}●'
-zstyle ':vcs_info:*' check-for-changes true
-zstyle ':vcs_info:(sv[nk]|bzr):*' branchformat '%b%F{1}:%F{11}%r'
-zstyle ':vcs_info:*' enable git svn hg
+add-zsh-hook precmd prompt_wilbert_precmd
 
-precmd () {
-   echo -ne "\\033]0;${PWD##*/}\\007"
-   if [[ -z $(git ls-files --other --exclude-standard 2> /dev/null) ]] {
-      zstyle ':vcs_info:*' formats $'%F{yellow}[%F{cyan}%r%F{blue}:%F{cyan}%b%c%u%F{yellow}]\n'
-   } else {
-   zstyle ':vcs_info:*' formats $'%F{yellow}[%F{cyan}%r%F{blue}:%F{cyan}%b%c%u%F{red}●%F{yellow}]\n'
-}
+zstyle ':vcs_info:*' enable git
+zstyle ':vcs_info:*' check-for-changes false
+zstyle ':vcs_info:git*' formats '%b'
+zstyle ':vcs_info:git*' actionformats '%b (%a)'
 
-vcs_info
-}
-setopt prompt_subst
-# normal user prompt
-[ $UID != 0 ] && export PROMPT=$'%{\e[1;30m%}(%{\e[0;32m%}%F{green}%n%{\e[1;32m%}@%{\e[0;32m%}%F{green}%m%{\e[1;30m%}:%{\e[0;32m%}%F{cyan}%~%{\e[1;30m%})%{\e[0;32m%}\n${vcs_info_msg_0_}%F{cyan}%#%f '
-# root prompt
-[ $UID = 0 ] && export PROMPT=$'%{\e[1;30m%}(%{\e[0;32m%}%F{red}%n%{\e[1;31m%}@%{\e[0;31m%}%F{red}%m%{\e[1;30m%}:%{\e[0;32m%}%F{magenta}%~%{\e[1;30m%})%{\e[0;32m%}\n${vcs_info_msg_0_}%F{magenta}%#%f '
+# Load Git completion
+FILE=~/.zsh/.git-completion.zsh
+if [[ -f "$FILE" ]]; then
+  zstyle ':completion:*:*:git:*' script ~/git-completion.bash
+  fpath=(~/.zsh $fpath)
 
-function zle-line-init zle-keymap-select {
-   RPS1="${${KEYMAP/vicmd/-- NORMAL --}/(main|viins)/-- INSERT --}"
-   RPS2=$RPS1
-   zle reset-prompt
-}
-zle -N zle-line-init
-zle -N zle-keymap-select
-
-# -----------------------------------------------
-# Set up completion for hostnames
-# -----------------------------------------------
-
-if [[ "$ZSH_VERSION_TYPE" == 'new' ]]; then
-   : ${(A)_etc_hosts:=${(s: :)${(ps:\t:)${${(f)~~"$(</etc/hosts)"}%%\#*}##[:blank:]#[^[:blank:]]#}}}
-else
-   # Older versions don't like the above cruft
-   _etc_hosts=()
+  autoload -Uz compinit && compinit
 fi
 
-hosts=(
-"$_etc_hosts[@]"
-#Add favourite hosts here, and zsh will autocomplete them
-)
+# Characters
+SEGMENT_SEPARATOR="\ue0b0"
+PLUSMINUS="\u00b1"
+BRANCH="\ue0a0"
+DETACHED="𝌐" #"\u27a6"
+CROSS="\u274c\ufe0f" # ❌"\u2718"
+LIGHTNING="\u26a1\ufe0f" # ⚡️
+GEAR="\u2699\ufe0f" # ⚙️
+LINEBREAK=$'\n'
 
-my_accounts=(
-#Add favourite accounts here, and zsh will autocomplete them
-)
-# Import local favorite hosts and accounts
-[[ -s "$HOME/.hosts" ]] && . "$HOME/.hosts"
-
-zstyle ':completion:*' hosts $hosts
-zstyle ':completion:*:my-accounts' users-hosts $my_accounts
-
-# Fix issues with searching in vi-mode
-
-vi-search-fix() {
-   zle vi-cmd-mode
-   zle .vi-history-search-backward
-}
-autoload vi-search-fix
-zle -N vi-search-fix
-bindkey -M viins '\e/' vi-search-fix
-
-# Add more vim like behavior
-
-bindkey "^?" backward-delete-char
-bindkey "^W" backward-kill-word 
-bindkey "^H" backward-delete-char      # Control-h also deletes the previous char
-bindkey "^U" kill-line   
-
-# -----------------------------------------------
-#  User-defined Functions
-# -----------------------------------------------
-
-kill_all() { kill `ps -e|grep "$1"|grep -v 'grep'|awk '{print $1;}'` }
-
-_rake_does_task_list_need_generating () {
-   if [ ! -f .rake_tasks ]; then return 0;
-   else
-      accurate=$(stat -f%m .rake_tasks)
-      changed=$(stat -f%m Rakefile)
-      return $(expr $accurate '>=' $changed)
-   fi
+prompt_info() {
+  print -n "%B%m %@ - %D{%a %b %f}%b"
 }
 
-_rake () {
-   if [ -f Rakefile ]; then
-      if _rake_does_task_list_need_generating; then
-         echo "\nGenerating .rake_tasks..." > /dev/stderr
-         rake --silent --tasks | cut -d " " -f 2 > .rake_tasks
+prompt_dir() {
+  local directory
+  directory="%~"
+  # -n string: true if length of string is non-zero
+  # -z string: true if length of string is zero
+  if [[ -z "$REF" ]] && directory+=" $SEGMENT_SEPARATOR"
+
+  print -n "%F{cyan}$directory%f "
+}
+
+prompt_git() {
+  local color
+  is_dirty() {
+    test -n "$(git status --porcelain --ignore-submodules)"
+  }
+  if [[ -n "$REF" ]]; then
+    REF="%U%B$REF%b%u"
+    if is_dirty; then
+      color=yellow
+      REF="$REF $LIGHTNING"
+    else
+      color=green
+    fi
+    if [[ "$(git status)" =~ "Your branch is (.*) of" ]]; then
+      if [[ $match[1] == "ahead" ]]; then
+        REF="$REF %F{white}⬆%f "
+      else
+        REF="$REF %F{white}⬇%f "
       fi
-      compadd `cat .rake_tasks`
-   fi
+    fi
+    if [[ "${REF/.../}" == "$REF" ]]; then
+      REF="%U$BRANCH %u$REF"
+    else
+      color=red
+      REF="%U$DETACHED %u${REF/.../}"
+    fi
+    print -n "%F{$color}$REF $SEGMENT_SEPARATOR%f "
+  fi
 }
 
-compdef _rake rake
+# Status:
+# - was there an error
+# - are there background jobs?
+prompt_status() {
+  local symbols
+  symbols="%(1?.%{ $CROSS%}.)"
+  [[ $(jobs -l | wc -l) -gt 0 ]] && symbols+=" $GEAR"
 
-# Import local environment
-[[ -s "$HOME/.localenv" ]] && . "$HOME/.localenv"
+  [[ -n "$symbols" ]] && print -n "$symbols "
+}
 
-# Import aliases
-[[ -s "$HOME/.aliases" ]] && . "$HOME/.aliases"
+prompt_wilbert_precmd() {
+  # PS1
+  # setopt prompt_subst
+  vcs_info
+  REF="$vcs_info_msg_0_"
+  PROMPT="$(prompt_info)$(prompt_status)$LINEBREAK$(prompt_dir)$(prompt_git)"
+  # %(4w.%{%F{yellow}Thursday%f%}.) %j %# 
 
-# Import functions
-[[ -s "$HOME/.functions" ]] && . "$HOME/.functions"
+  # RPS1
+  # RPROMPT
+}
 
-# Import rvm
-[[ -s "$HOME/.rvm/scripts/rvm" ]] && export rvm_prefix="$HOME/." && . "$HOME/.rvm/scripts/rvm"
-
-__rvm_project_rvmrc
-
-# -----------------------------------------------
-#  END
-# -----------------------------------------------
-
-
-### Added by the Heroku Toolbelt
-export PATH="$PATH:/usr/local/heroku/bin"
-
-[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+# -- PRY REMOTE USAGE --
+# gem install pry-remote
+# require 'pry-remote'
+# binding.remote_pry
+# pry-remote
+# exit-program to get out of a loop

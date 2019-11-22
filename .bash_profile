@@ -1,3 +1,18 @@
+RED="\[\033[0;31m\]"
+YELLOW="\[\033[0;33m\]"
+GREEN="\[\033[0;32m\]"
+BLUE="\[\033[0;34m\]"
+LIGHT_RED="\[\033[1;31m\]"
+LIGHT_GREEN="\[\033[1;32m\]"
+WHITE="\[\033[1;37m\]"
+LIGHT_GRAY="\[\033[0;37m\]"
+TEAL="\[\033[0;36m\]"
+COLOR_NONE="\[\e[0m\]"
+
+parse_git_branch2() {
+  git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/[\1]/'
+}
+
 parse_git_branch() {
   git rev-parse --git-dir &> /dev/null
   git_status="$(git status 2> /dev/null)"
@@ -35,38 +50,22 @@ export CLICOLOR="YES"
 
 export LSCOLORS="ExGxFxdxCxDxDxhbadExEx"
 
-# Load RVM into a shell session
-#[[ -s "$HOME/.rvm/scripts/rvm" ]] && . "$HOME/.rvm/scripts/rvm"  # This loads RVM into a shell session.
-
-#export PATH="$PATH:$HOME/.rvm/bin" # Add RVM to PATH for scripting
-#export PATH="$HOME/.rbenv/shims:$PATH"
-
 #export PATH=/usr/local/packages/git-2.9.2/bin/:${PATH} # Use Git version 2.9.2
 
 if [ -f ~/.git-completion.bash ]; then
   . ~/.git-completion.bash
 fi
 
+# Load RVM into a shell session
+#[[ -s "$HOME/.rvm/scripts/rvm" ]] && . "$HOME/.rvm/scripts/rvm"  # This loads RVM into a shell session.
+
+#export PATH="$PATH:$HOME/.rvm/bin" # Add RVM to PATH for scripting
+#export PATH="$HOME/.rbenv/shims:$PATH"
+
 export NVM_DIR="$HOME/.nvm"
   . "/usr/local/opt/nvm/nvm.sh"
 
 eval "$(rbenv init -)"
-
-alias redis-start="launchctl load ~/Library/LaunchAgents/homebrew.mxcl.redis.plist"
-alias redis-stop="launchctl unload ~/Library/LaunchAgents/homebrew.mxcl.redis.plist"
-
-# To enable automatic start for Redis, PostgreSQL, and RabbitMQ, make a series of
-# symlinks from the brew-installed services to the LaunchAgents folder for your user.
-#
-# ln -sfv /usr/local/opt/redis/*.plist ~/Library/LaunchAgents/
-
-alias restart="touch tmp/restart.txt ; echo 'restarted pow server'";
-alias webpackr="./bin/webpack-dev-server";
-alias crdb="bundle exec rails db";
-alias server="php -S localhost:3000"
-alias be="bundle exec"
-alias fixtestdb="bundle exec rake db:drop db:create RAILS_ENV=test;bundle exec rake db:test:prepare;"
-alias dps="docker ps --format 'table {{.Names}}\t{{.Command}}\t{{.Status}}\t{{.RunningFor}}' --no-trunc"
 
 # -- PRY REMOTE USAGE --
 # gem install pry-remote
