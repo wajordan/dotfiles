@@ -56,7 +56,7 @@ prompt_sprint() {
   elif [[ $days -gt 3 ]]; then
     days=$(( $days - 2 ))
   fi
-  # %(4w.%{%F{yellow}Thursday%f%}.) %j %# 
+  # %(4w.%{%F{yellow}Thursday%f%}.) %j %#
   print -n "%F{234}$days%f %F{233}days left%f"
 }
 
@@ -136,6 +136,7 @@ prompt_wilbert_precmd() {
 # https://github.com/agnoster/agnoster-zsh-theme
 # https://scriptingosx.com/2019/06/moving-to-zsh/
 # https://jonasjacek.github.io/colors/
+# https://stackoverflow.com/questions/22537804/retrieve-a-word-after-a-regular-expression-in-shell-script
 
 # Read in a common environment configuration if present
 # -f file: true if file exists and is a regular file.

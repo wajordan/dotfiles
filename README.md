@@ -39,3 +39,4 @@ In the zsh scripts, the hostname and account completion are split into private l
 - **Docs:**
   - [The Z Shell Manual](http://zsh.sourceforge.net/Doc/Release/index.html#Top)
   - [Old Zsh Docs](http://www.csse.uwa.edu.au/programming/linux/zsh-doc/zsh_toc.html)
+  - [Shell Script Regex](https://stackoverflow.com/questions/22537804/retrieve-a-word-after-a-regular-expression-in-shell-script)
