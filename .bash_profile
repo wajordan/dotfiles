@@ -17,16 +17,20 @@ parse_git_branch() {
   git rev-parse --git-dir &> /dev/null
   git_status="$(git status 2> /dev/null)"
   branch_pattern="^On branch ([^${IFS}]*)"
-  remote_pattern="Your branch is (.*) of"
+  remote_ahead_pattern="Your branch is (.*) of"
+  remote_behind_pattern="Your branch is (.*) 'origin/"
   diverge_pattern="Your branch and (.*) have diverged"
   if [[ ! ${git_status} =~ "working tree clean" ]]; then
     state="${RED}⚡️ "
   fi
   # add an else if or two here if you want to get more specific
-  if [[ ${git_status} =~ ${remote_pattern} ]]; then
+  if [[ ${git_status} =~ ${remote_ahead_pattern} ]]; then
     if [[ ${BASH_REMATCH[1]} == "ahead" ]]; then
       remote="${WHITE}⬆ "
-    else
+    fi
+  fi
+  if [[ ${git_status} =~ ${remote_behind_pattern} ]]; then
+    if [[ ${BASH_REMATCH[1]} == "behind" ]]; then
       remote="${WHITE}⬇ "
     fi
   fi
@@ -73,3 +77,12 @@ eval "$(rbenv init -)"
 # binding.remote_pry
 # pry-remote
 # exit-program to get out of a loop
+
+# -- screen for terminal --
+# crtl-a '   (select)
+# crtl-a 0   (select 0)
+# crtl-a S   (split horizontally)
+# crtl-a \   (quit) Kill all windows and terminate screen.
+# crtl-a ?   (help)
+# crtl-a C   (create)
+# crtl-a tab (switch split screens)

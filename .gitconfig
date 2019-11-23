@@ -19,9 +19,6 @@
    default = tracking
 [alias]
    al = config --get-regexp alias
-   br = branch
-   brd = branch -d
-   cob = checkout -b
    cos = "!f() { git checkout $(git branch | grep $1); }; f"
    cp = cherry-pick
    df = diff
@@ -32,26 +29,27 @@
    mt = mergetool
    rbc = rebase --continue
    rbs = rebase --skip
-   
-   brD = "!f() { git branch -D `git branch --list "${1:-origin}"`; }; f" # WIP
-   c  = commit
+
+   c = commit
    co = checkout
    cm = commit -m
    cmend = commit --amend --no-edit
+   d = diff --name-only
+   del = "!f() { git branch -D $(git branch --list "*$1*"); }; f"
+   dst = diff --staged
    edit = commit --amend -m
    empty = commit --allow-empty -m
-   dst = diff --staged
-   d = diff --name-only
    hist = log --pretty=format:\"%h %ad | %s%d [%an]\" --graph --date=short
-   lod = log --oneline --decorate
-   lp = log -p
    lf = log --pretty=fuller
    lg = log
-   pff = pull --ff-only
+   lod = log --oneline --decorate
+   lone = show --stat --oneline
+   lp = log -p
    p = push -u #push branch and setup remote tracking
+   pff = pull --ff-only
    rei = "!sh -c 'git rebase -i HEAD~$1'"
-   standup = log --graph --pretty=format:'%Cred%h%Creset -%Cgreen %an -%C(yellow)%d%Creset %s %Cgreen(%cr)%Creset' --abbrev-commit --date=relative --since="yesterday"
    s = status
+   standup = log --graph --pretty=format:'%Cred%h%Creset -%Cgreen %an -%C(yellow)%d%Creset %s %Cgreen(%cr)%Creset' --abbrev-commit --date=relative --since="yesterday"
    search = "!f(){ git branch --list "*$1*"; }; f"
    track = branch -u
 
@@ -66,7 +64,7 @@
 	name = Will
 [difftool "sourcetree"]
 	cmd = opendiff \"$LOCAL\" \"$REMOTE\"
-	path = 
+	path =
 [mergetool "sourcetree"]
 	cmd = /Applications/SourceTree.app/Contents/Resources/opendiff-w.sh \"$LOCAL\" \"$REMOTE\" -ancestor \"$BASE\" -merge \"$MERGED\"
 	trustExitCode = true
