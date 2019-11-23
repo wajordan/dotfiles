@@ -1,5 +1,9 @@
 autoload -Uz add-zsh-hook
 autoload -Uz vcs_info
+zmodload zsh/datetime
+
+# allows parameter expansion, arithmatic, and shell substitution in prompts
+setopt prompt_subst
 
 add-zsh-hook precmd prompt_wilbert_precmd
 
@@ -17,18 +21,51 @@ if [[ -f "$FILE" ]]; then
   autoload -Uz compinit && compinit
 fi
 
+# COLORS:
+# black, red, green, yellow, blue, magenta, cyan and white
+
 # Characters
 SEGMENT_SEPARATOR="\ue0b0"
 PLUSMINUS="\u00b1"
 BRANCH="\ue0a0"
-DETACHED="𝌐" #"\u27a6"
+DETACHED="\u27a6"
+DIVERGED="\u2049\ufe0f" # ⁉️
 CROSS="\u274c\ufe0f" # ❌"\u2718"
 LIGHTNING="\u26a1\ufe0f" # ⚡️
 GEAR="\u2699\ufe0f" # ⚙️
+DIAMOND="💎"
 LINEBREAK=$'\n'
 
+# Machine Name, Time - Date
 prompt_info() {
-  print -n "%B%m %@ - %D{%a %b %f}%b"
+  # local name
+  # name=`whoami`
+  # %F{232}${name:s/wajordan/Wilbert}%f
+  print -n "%B%F{232}%m%f %@ - %D{%a %b %f}%b"
+}
+
+# Countdown to next sprint. Whooo!
+prompt_sprint() {
+  local sdate edate days
+  sdate="Thu Nov 07 00:00:00 2019"
+  edate=`date "+%a %b %d %T %Y"`
+  for v ({s,e}date) strftime -rs $v '%a %b %d %T %Y' ${(P)v}
+  days=$(( 14 - (((edate - sdate) / 86400) % 14) ))
+  if [[ $days -gt 10 ]]; then
+    days=$(( $days - 4 ))
+  elif [[ $days -gt 3 ]]; then
+    days=$(( $days - 2 ))
+  fi
+  # %(4w.%{%F{yellow}Thursday%f%}.) %j %# 
+  print -n "%F{234}$days%f %F{233}days left%f"
+}
+
+# Status:
+# - was there an error
+# - am I root
+# - are there background jobs?
+prompt_status() {
+  print -n "%(1?.%{ $CROSS%}.)%(!.%{ $DIAMOND%}.)%(1j.%{ %j $GEAR%}.)"
 }
 
 prompt_dir() {
@@ -42,11 +79,12 @@ prompt_dir() {
 }
 
 prompt_git() {
-  local color
+  local color git_status
   is_dirty() {
     test -n "$(git status --porcelain --ignore-submodules)"
   }
   if [[ -n "$REF" ]]; then
+    git_status="$(git status)"
     REF="%U%B$REF%b%u"
     if is_dirty; then
       color=yellow
@@ -54,11 +92,14 @@ prompt_git() {
     else
       color=green
     fi
-    if [[ "$(git status)" =~ "Your branch is (.*) of" && $match[1] == "ahead" ]]; then
+    if [[ "$git_status" =~ "Your branch is (.*) of" && $match[1] == "ahead" ]]; then
       REF="$REF %F{white}⬆%f "
     fi
-    if [[ "$(git status)" =~ "Your branch is (.*) 'origin/" && $match[1] == "behind" ]]; then
+    if [[ "$git_status" =~ "Your branch is (.*) 'origin/" && $match[1] == "behind" ]]; then
       REF="$REF %F{white}⬇%f "
+    fi
+    if [[ "$git_status" =~ "Your branch and (.*) have diverged" ]]; then
+      REF="$REF $DIVERGED "
     fi
     if [[ "${REF/.../}" == "$REF" ]]; then
       REF="%U$BRANCH %u$REF"
@@ -66,35 +107,35 @@ prompt_git() {
       color=red
       REF="%U$DETACHED %u${REF/.../}"
     fi
-    print -n "%F{$color}$REF $SEGMENT_SEPARATOR%f "
+    print -n "%F{$color}$REF%f %F{$color}$SEGMENT_SEPARATOR%f "
   fi
 }
 
-# Status:
-# - was there an error
-# - are there background jobs?
-prompt_status() {
-  local symbols
-  symbols="%(1?.%{ $CROSS%}.)"
-  [[ $(jobs -l | wc -l) -gt 0 ]] && symbols+=" $GEAR"
-
-  [[ -n "$symbols" ]] && print -n "$symbols "
-}
-
 prompt_wilbert_precmd() {
-  # PS1
-  # setopt prompt_subst
   vcs_info
   REF="$vcs_info_msg_0_"
+
+  # PS1
   PROMPT="$(prompt_info)$(prompt_status)$LINEBREAK$(prompt_dir)$(prompt_git)"
-  # %(4w.%{%F{yellow}Thursday%f%}.) %j %#
 
   # RPS1
-  # RPROMPT
+  RPROMPT="$(prompt_sprint)"
 }
 
 # Scripting
-# http://www.csse.uwa.edu.au/programming/linux/zsh-doc/zsh_11.html
+# https://github.com/rothgar/mastering-zsh
+# https://github.com/zsh-users
+# http://zsh.sourceforge.net/Doc/Release/index.html#Top
+# https://github.com/LeCoupa/awesome-cheatsheets/blob/master/languages/bash.sh
+# http://www.csse.uwa.edu.au/programming/linux/zsh-doc/zsh_toc.html
+# https://medium.com/@oliverspryn/adding-git-completion-to-zsh-60f3b0e7ffbc
+# https://github.com/powerline/fonts
+# https://gist.github.com/pbrisbin/45654dc74787c18e858c
+# https://github.com/git/git/tree/master/contrib/completion
+# https://github.com/denysdovhan/spaceship-prompt
+# https://github.com/agnoster/agnoster-zsh-theme
+# https://scriptingosx.com/2019/06/moving-to-zsh/
+# https://jonasjacek.github.io/colors/
 
 # Read in a common environment configuration if present
 # -f file: true if file exists and is a regular file.
