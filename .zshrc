@@ -54,12 +54,11 @@ prompt_git() {
     else
       color=green
     fi
-    if [[ "$(git status)" =~ "Your branch is (.*) of" ]]; then
-      if [[ $match[1] == "ahead" ]]; then
-        REF="$REF %F{white}⬆%f "
-      else
-        REF="$REF %F{white}⬇%f "
-      fi
+    if [[ "$(git status)" =~ "Your branch is (.*) of" && $match[1] == "ahead" ]]; then
+      REF="$REF %F{white}⬆%f "
+    fi
+    if [[ "$(git status)" =~ "Your branch is (.*) 'origin/" && $match[1] == "behind" ]]; then
+      REF="$REF %F{white}⬇%f "
     fi
     if [[ "${REF/.../}" == "$REF" ]]; then
       REF="%U$BRANCH %u$REF"
