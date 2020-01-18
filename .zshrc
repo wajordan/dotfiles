@@ -22,6 +22,10 @@ setopt HIST_VERIFY               # Do not execute immediately upon history expan
 setopt APPEND_HISTORY            # append to history file
 setopt HIST_NO_STORE             # Don't store history commands
 
+# up/down arrow key history search based on text entered in prompt
+bindkey '^[[A' up-line-or-search
+bindkey '^[[B' down-line-or-search
+
 add-zsh-hook precmd prompt_wilbert_precmd
 
 zstyle ':vcs_info:*' enable git

@@ -6,6 +6,7 @@ set_ls_alias=$(ls --color=auto -F 2>/dev/null)
 unset set_ls_alias
 
 alias tld='tail -f log/development.log'
+alias -s log="tail -f"
 alias rsu='kill -HUP `cat tmp/pids/unicorn.pid`'
 alias stu='kill `cat tmp/pids/unicorn.pid`'
 alias brk='bundle exec rake'
@@ -23,6 +24,7 @@ alias crdb="bundle exec rails db";
 alias server="php -S localhost:3000"
 alias fixtestdb="bundle exec rake db:drop db:create RAILS_ENV=test;bundle exec rake db:test:prepare;"
 alias dps="docker ps --format 'table {{.Names}}\t{{.Command}}\t{{.Status}}\t{{.RunningFor}}' --no-trunc"
+alias cmd="echo 'CTRL+A  # move to beginning of line\nCTRL+E  # moves to end of line\nCTRL+U  # kills backward from point to the beginning of line\nCTRL+K  # deletes (kill) forward to end of line'"
 
 matrix() { echo -e "\e[1;40m" ; clear ; while :; do echo $LINES $COLUMNS $(( $RANDOM % $COLUMNS)) $(( $RANDOM % 72 )) ;sleep 0.05; done|awk '{ letters="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%^&*()"; c=$4;        letter=substr(letters,c,1);a[$3]=0;for (x in a) {o=a[x];a[x]=a[x]+1; printf "\033[%s;%sH\033[2;32m%s",o,x,letter; printf "\033[%s;%sH\033[1;37m%s\033[0;0H",a[x],x,letter;if (a[x] >= $1) { a[x]=0; } }}' }
 

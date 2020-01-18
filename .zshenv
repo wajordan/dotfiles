@@ -1,7 +1,7 @@
 # Prepare common environment variables
 export BLOCKSIZE=K
 less --version 2>&1 >/dev/null && export PAGER=less
-# export HISTFILE=/Users/william/.zsh_history
+# export HISTFILE=$HOME/.zsh_history
 # export HISTSIZE=2000
 # export EDITOR=vi
 # export GEMEDITOR=vim
