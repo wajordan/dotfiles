@@ -1,6 +1,8 @@
 # Prepare common environment variables
 export BLOCKSIZE=K
 less --version 2>&1 >/dev/null && export PAGER=less
+# export HISTFILE=/Users/william/.zsh_history
+# export HISTSIZE=2000
 # export EDITOR=vi
 # export GEMEDITOR=vim
 export COLORTERM=yes
@@ -8,6 +10,7 @@ export GIT_EDITOR='vim --noplugin'
 export SVN_EDITOR='vim --noplugin'
 export CLICOLOR=1
 export LSCOLORS=CxFxExDxBxegedabagacad
+# export SPRINT=true
 
 # NVM: Node Version Manager
 export NVM_DIR="$HOME/.nvm"
