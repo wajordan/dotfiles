@@ -56,6 +56,7 @@ LIGHTNING="\u26a1\ufe0f" # ⚡️
 GEAR="\u2699\ufe0f" # ⚙️
 DIAMOND="💎"
 STAR="🌟"
+REBASE="🆁"
 BR=$'\n' # Line Break
 
 # Machine/Username > Date → Time
@@ -176,6 +177,10 @@ prompt_git() {
     if [[ "$git_status" =~ "Your branch and (.*) have diverged" ]]; then
       color=22
       REF="$REF $DIVERGED "
+    fi
+    if [[ "$git_status" =~ "You are currently rebasing branch" ]]; then
+      color=246
+      REF="$REF $REBASE "
     fi
     if [[ "${REF/.../}" == "$REF" ]]; then
       REF="%U$BRANCH %u$REF"
